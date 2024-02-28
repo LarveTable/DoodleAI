@@ -1,30 +1,38 @@
 import pygame
-import random
+from player import Player
+import pymunk
+from physics import Simulation
+from platforms import BasePlatform
+from game import RunningGame
 
 # Initialize Pygame TURTLE JUMP
 pygame.init()
 
 # Set the width and height of the window
-width = 800
-height = 600
+width = 500
+height = 800
 
 # Create the window
 window = pygame.display.set_mode((width, height))
 
 # Load a simple background image
-background = pygame.image.load('interface/textures/background.png')
+background = pygame.image.load('engine/textures/background.png')
 
 # Downscale the image
 scaled_image = pygame.transform.scale(background, (width, height))
 
 # Load the image for the icon
-icon = pygame.image.load('interface/textures/icon.png')
+icon = pygame.image.load('engine/textures/icon.png')
 
 # Set the icon for the window
 pygame.display.set_icon(icon)
 
 # Draw the background image
 window.blit(scaled_image, (0, 0))
+
+# Start the game
+game = RunningGame(window)
+game.start_game()
 
 # Game loop
 running = True
@@ -34,18 +42,13 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # Update the game logic here
-
     # Clear the window
     window.fill((0, 0, 0))
-            
-    # Draw the background image
     window.blit(scaled_image, (0, 0))
 
-    # Draw game elements here
+    game.run()
 
-    # Update the window
-    pygame.display.flip()
+    pygame.display.update() # Always at the end
 
 # Quit Pygame
 pygame.quit()

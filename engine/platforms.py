@@ -10,7 +10,7 @@ class Platform:
         self.thickeness = 5
         self.window = window
         self.space = sim.space
-        self.body = pymunk.Body(body_type=pymunk.Body.STATIC)
+        self.body = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
         self.shape = pymunk.Segment(self.body, (p1[0], p1[1]), (p2[0], p2[1]), self.thickeness)
         self.shape.elasticity = 1
         self.shape.filter = pymunk.ShapeFilter(group=2)
@@ -20,8 +20,11 @@ class Platform:
         start = self.sim.convert_coordinates(self.p1[0], self.p1[1])
         end = self.sim.convert_coordinates(self.p2[0], self.p2[1])
         pygame.draw.line(self.window, (255, 255, 255), start, end, 2*self.thickeness) # 10 because pygame expends the thickness of the line to both sides
-        
 
+    def move(self, y):
+        self.p1 = (self.p1[0], y)
+        self.p2 = (self.p2[0], y)
+        self.shape.unsafe_set_endpoints(self.p1, self.p2)
 
 class BasePlatform(Platform):
     def __init__(self, p1, p2, sim, window):

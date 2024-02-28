@@ -1,8 +1,4 @@
 import pygame
-from player import Player
-import pymunk
-from physics import Simulation
-from platforms import BasePlatform
 from game import RunningGame
 
 # Initialize Pygame TURTLE JUMP

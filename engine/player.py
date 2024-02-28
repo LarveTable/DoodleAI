@@ -21,9 +21,11 @@ class Player:
     def handle_input(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
-            self.move(self.body.position.x-8, self.body.position.y)
+            self.body.velocity = -500, self.body.velocity.y
+            #self.move(self.body.position.x-8, self.body.position.y)
         if keys[pygame.K_RIGHT]:
-            self.move(self.body.position.x+8, self.body.position.y)
+            self.body.velocity = 500, self.body.velocity.y
+            #self.move(self.body.position.x+8, self.body.position.y)
         if keys[pygame.K_SPACE]:
             self.body.velocity = 0, 0
             self.move(250, 200)

@@ -5,10 +5,10 @@ from platforms import BasePlatform
 from collections import deque
 
 class RunningGame:
-    def __init__(self, window):
+    def __init__(self, window, main):
         self.is_running = False
         self.window = window
-
+        self.main = main
 
         self.max_platforms = 20
 
@@ -35,7 +35,7 @@ class RunningGame:
             self.sim = Simulation(self.window, self.fps, self.font)
 
             # Create a player object 
-            self.player = Player(250, 200, self.player_texture, self.window, self.sim)
+            self.player = Player(250, 0, self.player_texture, self.window, self.sim)
 
             # Create the base platform
             starting_platform = BasePlatform((200, 50), (300, 50), self.sim, self.window)
@@ -61,7 +61,14 @@ class RunningGame:
             # Draw the platforms
             for platform in self.displayed_platforms:
                 platform.draw()
+
+            # Draw the score
             self.window.blit(self.score_string,(200,0))
+
+            # To DELETE
+            temp_pos_str = str(int(self.player.get_position()[1]))
+            temp_pos = self.font.render(temp_pos_str, True, pygame.Color("RED"))
+            self.window.blit(temp_pos,(400,0))
 
             # Update the simulation
             self.sim.step()
@@ -77,7 +84,9 @@ class RunningGame:
             print("The game is not running.")
         else:
             self.is_running = False
+            self.sim.kill()
             print("Game over.")
+            self.main.restart()
 
     def update_score(self):
         current_score = int(self.player.get_position()[1])

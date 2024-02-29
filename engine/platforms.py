@@ -12,7 +12,7 @@ class Platform:
         self.space = sim.space
         self.body = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
         self.shape = pymunk.Segment(self.body, (p1[0], p1[1]), (p2[0], p2[1]), self.thickeness)
-        self.shape.elasticity = 1
+        self.shape.elasticity = 0
         self.shape.filter = pymunk.ShapeFilter(group=2)
         self.space.add(self.body, self.shape) # When using static bodies, we only add the shape to the space
 

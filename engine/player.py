@@ -13,10 +13,11 @@ class Player:
         self.texture = pygame.transform.scale(texture, (4*self.radius, 4*self.radius))
         self.shape = pymunk.Circle(self.body, self.radius)
         self.shape.density = 1 # Will be used to calculate mass of the body knowing the shape and density
-        self.shape.elasticity = 1
+        self.shape.elasticity = 0
         self.shape.collision_type = 1
         self.shape.filter = pymunk.ShapeFilter(group=1)
         self.space.add(self.body, self.shape)
+        self.body.velocity = 0, 1000
 
     def handle_input(self):
         keys = pygame.key.get_pressed()
@@ -35,6 +36,10 @@ class Player:
             self.move(self.body.position.x, self.body.position.y-5)""" # Useless and may cause bugs
 
     def draw(self):
+        if self.body.position.x < 0:
+            self.body.position = 500, self.body.position.y
+        elif self.body.position.x > 500:
+            self.body.position = 0, self.body.position.y
         collision_handler = self.space.add_collision_handler(1, 2)
         collision_handler.begin = self.handle_collision
         self.body.velocity = 0, self.body.velocity.y

@@ -3,12 +3,15 @@ from player import Player
 from physics import Simulation
 from platforms import BasePlatform
 from collections import deque
+import random
 
 class RunningGame:
     def __init__(self, window, main):
         self.is_running = False
         self.window = window
         self.main = main
+
+        self.velocity_at_zero = 900
 
         self.max_platforms = 20
 
@@ -20,7 +23,9 @@ class RunningGame:
 
         self.displayed_platforms = deque()
 
-        self.previous_move = 400
+        self.base_height = 400
+
+        self.clock = pygame.time.Clock()
 
     def start_game(self):
         if self.is_running:
@@ -32,18 +37,13 @@ class RunningGame:
             self.font = pygame.font.SysFont("Arial" , 18 , bold = True)
 
             # Creating the pymunk space
-            self.sim = Simulation(self.window, self.fps, self.font)
+            self.sim = Simulation(self.window, self.fps, self.font, self.clock)
 
             # Create a player object 
-            self.player = Player(250, 0, self.player_texture, self.window, self.sim)
+            self.player = Player(250, 400, self.player_texture, self.window, self.sim, self)
 
-            # Create the base platform
-            starting_platform = BasePlatform((200, 50), (300, 50), self.sim, self.window)
-            test = BasePlatform((350, 200), (450, 200), self.sim, self.window)
-            test2 = BasePlatform((100, 400), (200, 400), self.sim, self.window)
-            self.displayed_platforms.append(starting_platform)
-            self.displayed_platforms.append(test2)
-            self.displayed_platforms.append(test)
+            # Create the base platforms
+            self.gen_platform()
 
             # Score
             self.score_offset = 315
@@ -72,9 +72,7 @@ class RunningGame:
 
             # Update the simulation
             self.sim.step()
-            self.sim.fps_counter()
-            self.update_score()
-            self.update_displayed_platforms()
+            self.fps_counter()
 
             if self.player.get_position()[1] < 0:
                 self.stop_game()
@@ -87,24 +85,47 @@ class RunningGame:
             self.sim.kill()
             print("Game over.")
             self.main.restart()
-
-    def update_score(self):
-        current_score = int(self.player.get_position()[1])
-        if current_score > self.score + self.score_offset:
-            tmp = str(current_score - self.score_offset)
-            self.score_string = self.font.render(tmp, True, pygame.Color("RED"))
-            self.score = current_score - self.score_offset
-
-    def get_displayed_platforms(self):
-        return self.displayed_platforms
     
-    def update_displayed_platforms(self):
-        snap = self.player.get_position()[1]
-        if snap > 400 and snap > self.previous_move:
-            for p in self.displayed_platforms:
-                p.move(p.p1[1]-(snap - self.previous_move))
-            self.previous_move = snap
+    def fps_counter(self):
+        fps = str(int(self.clock.get_fps()))
+        fps_t = self.font.render(fps, True, pygame.Color("RED"))
+        self.window.blit(fps_t,(0,0))
+
+    def update_score(self, difference):
+        self.score = self.score + difference
+        self.score_string = self.font.render(str(int(self.score)), True, pygame.Color("RED"))
     
-    def gen_platform(self):
-        if len(self.displayed_platforms) < self.max_platforms:
-            pass
+    def update_displayed_platforms(self, player_veloctiy, theoritical_height):
+        if (theoritical_height >= 400):
+            difference = theoritical_height - self.base_height
+            if player_veloctiy < self.velocity_at_zero:
+                for platform in list(self.displayed_platforms):
+                    platform.move(platform.p1[1] - difference)
+                    if platform.p1[1] < 0:
+                        self.displayed_platforms.popleft()
+                        platform.kill()
+            self.update_score(difference)
+        #self.gen_platform()
+
+            
+    def gen_platform(self): # A travailler mais pas mal
+        while len(self.displayed_platforms) < self.max_platforms:
+            if len(self.displayed_platforms) == 0:
+                random_x = random.randint(10, 330)
+                random_y = random.randint(20, 100)
+                first = BasePlatform((random_x, random_y), (random_x+80, random_y), self.sim, self.window)
+                self.displayed_platforms.append(first)
+
+            # Get the highest platform
+            highest_platform = self.displayed_platforms[-1]
+            highest_platform_height = int(highest_platform.p1[1])
+            print(highest_platform_height)
+
+            random_y = random.randint(50, 250) + highest_platform_height
+            random_x = random.randint(10, 330)
+
+            print(random_x, random_y)
+
+            # Generate a new platform
+            new_platform = BasePlatform((random_x, random_y), (random_x+80, random_y), self.sim, self.window)
+            self.displayed_platforms.append(new_platform)

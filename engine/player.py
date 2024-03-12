@@ -1,14 +1,15 @@
 import pygame
 import pymunk
+import math
 
 class Player:
-    def __init__(self, x, y, texture, window, sim):
+    def __init__(self, x, y, texture, window, sim, game):
         self.sim = sim
+        self.game = game
         self.window = window
         self.space = sim.space
         self.body = pymunk.Body()
         self.body.position = x, y
-        self.body.mass = 0.1
         self.radius = 30
         self.texture = pygame.transform.scale(texture, (4*self.radius, 4*self.radius))
         self.shape = pymunk.Circle(self.body, self.radius)
@@ -17,7 +18,9 @@ class Player:
         self.shape.collision_type = 1
         self.shape.filter = pymunk.ShapeFilter(group=1)
         self.space.add(self.body, self.shape)
-        self.body.velocity = 0, 1000
+        self.position_offset = (self.radius / 2) + 5 # 5 being the platform thickness
+        self.velocity_at_zero = 900
+        #self.body.velocity = 0, 1000
 
     def handle_input(self):
         keys = pygame.key.get_pressed()
@@ -55,9 +58,36 @@ class Player:
     def move(self, x, y):
         self.body.position = x, y
 
-    def handle_collision(self, arbiter, space, data):
-        self.body.velocity = 0, 850
-        return True
+    # Control the player jump
+    def handle_collision(self, arbiter, space, data): # trouver un moyen de checker si le joueur collide avec le haut de la plateforme
+        if self.body.velocity.y < 0:
+            if self.body.position.y - self.radius/2 > arbiter.shapes[1].a[1]:
+                state = self.body.position.y
+                y = self.required_velocity(state)
+                theoritical_height = (self.velocity_at_zero ** 2) / (2 * abs(self.space.gravity[1])) + state
+                self.body.velocity = 0, y
+                self.game.update_displayed_platforms(y, theoritical_height)
+                return True
+        return False
+        
+            # Equations used
+            # v^2 = 2g(h-ht)
+            # h = v/2g + ht
     
     def get_position(self):
         return self.body.position
+
+    def required_velocity(self, state):
+        gravity = self.space.gravity[1]
+        height = 400
+        
+        # Apply equations of motion to find initial velocity
+        initial_velocity_squared = 2 * abs(gravity) * (height - state)
+        
+        # Ensure that the height is achievable with given conditions
+        if initial_velocity_squared < 0:
+            raise ValueError("Height is not achievable with given conditions")
+        
+        initial_velocity = math.sqrt(initial_velocity_squared)
+        
+        return initial_velocity

@@ -26,6 +26,9 @@ class Platform:
         self.p2 = (self.p2[0], y)
         self.shape.unsafe_set_endpoints(self.p1, self.p2)
 
+    def kill(self):
+        self.space.remove(self.shape)
+
 class BasePlatform(Platform):
     def __init__(self, p1, p2, sim, window):
         super().__init__('engine/textures/base_platform.png', p1, p2, sim, window)

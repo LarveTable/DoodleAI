@@ -1,5 +1,4 @@
 import pymunk
-import pygame
 
 class Simulation:
     def __init__(self, window, fps, font, clock):

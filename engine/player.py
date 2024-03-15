@@ -20,23 +20,26 @@ class Player:
         self.space.add(self.body, self.shape)
         self.position_offset = (self.radius / 2) + 5 # 5 being the platform thickness
         self.velocity_at_zero = 900
-        #self.body.velocity = 0, 1000
+        self.body.velocity = 0, 1000
+        self.looking = "right"
 
     def handle_input(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
-            self.body.velocity = -500, self.body.velocity.y
-            #self.move(self.body.position.x-8, self.body.position.y)
+            #self.body.velocity = -500, self.body.velocity.y
+            if self.looking == "right":
+                self.texture = pygame.transform.flip(self.texture, True, False)
+                self.looking = "left"
+            self.move(self.body.position.x-8, self.body.position.y)
         if keys[pygame.K_RIGHT]:
-            self.body.velocity = 500, self.body.velocity.y
-            #self.move(self.body.position.x+8, self.body.position.y)
+            #self.body.velocity = 500, self.body.velocity.y
+            if self.looking == "left":
+                self.texture = pygame.transform.flip(self.texture, True, False)
+                self.looking = "right"
+            self.move(self.body.position.x+8, self.body.position.y)
         if keys[pygame.K_SPACE]:
             self.body.velocity = 0, 0
             self.move(250, 200)
-        """if keys[pygame.K_UP]:
-            self.move(self.body.position.x, self.body.position.y+5)
-        if keys[pygame.K_DOWN]:
-            self.move(self.body.position.x, self.body.position.y-5)""" # Useless and may cause bugs
 
     def draw(self):
         if self.body.position.x < 0:
@@ -52,7 +55,6 @@ class Player:
             self.shape.filter = pymunk.ShapeFilter(group=1)
         x, y = self.body.position
         x, y = self.sim.convert_coordinates(x, y)
-        pygame.draw.circle(self.window, (0, 0, 255), (int(x), int(y)), self.radius) # Converting to int because pygame doesn't accept floats
         self.window.blit(self.texture, (int(x)-2*self.radius, int(y)-2*self.radius)) # Blit the texture to the window
 
     def move(self, x, y):

@@ -40,15 +40,14 @@ class RunningGame:
             self.sim = Simulation(self.window, self.fps, self.font, self.clock)
 
             # Create a player object 
-            self.player = Player(250, 400, self.player_texture, self.window, self.sim, self)
+            self.player = Player(250, 0, self.player_texture, self.window, self.sim, self)
 
             # Create the base platforms
             self.gen_platform()
 
             # Score
-            self.score_offset = 315
             self.score = 0
-            self.score_string = self.font.render('0', True, pygame.Color("RED"))
+            self.score_string = self.font.render('Score : 0', True, pygame.Color("RED"))
 
             print("The game has started.")
 
@@ -63,12 +62,7 @@ class RunningGame:
                 platform.draw()
 
             # Draw the score
-            self.window.blit(self.score_string,(200,0))
-
-            # To DELETE
-            temp_pos_str = str(int(self.player.get_position()[1]))
-            temp_pos = self.font.render(temp_pos_str, True, pygame.Color("RED"))
-            self.window.blit(temp_pos,(400,0))
+            self.window.blit(self.score_string,(300,0))
 
             # Update the simulation
             self.sim.step()
@@ -93,7 +87,7 @@ class RunningGame:
 
     def update_score(self, difference):
         self.score = self.score + difference
-        self.score_string = self.font.render(str(int(self.score)), True, pygame.Color("RED"))
+        self.score_string = self.font.render("Score : "+str(int(self.score)), True, pygame.Color("RED"))
     
     def update_displayed_platforms(self, player_veloctiy, theoritical_height):
         if (theoritical_height >= 400):
@@ -105,7 +99,7 @@ class RunningGame:
                         self.displayed_platforms.popleft()
                         platform.kill()
             self.update_score(difference)
-        #self.gen_platform()
+        self.gen_platform()
 
             
     def gen_platform(self): # A travailler mais pas mal
@@ -119,12 +113,9 @@ class RunningGame:
             # Get the highest platform
             highest_platform = self.displayed_platforms[-1]
             highest_platform_height = int(highest_platform.p1[1])
-            print(highest_platform_height)
 
             random_y = random.randint(50, 250) + highest_platform_height
             random_x = random.randint(10, 330)
-
-            print(random_x, random_y)
 
             # Generate a new platform
             new_platform = BasePlatform((random_x, random_y), (random_x+80, random_y), self.sim, self.window)

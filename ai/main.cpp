@@ -1,0 +1,40 @@
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h> // Include this header for automatic conversions of std::vector
+#include "game_state.h"
+#include "ai_classes.h"
+
+namespace py = pybind11;
+
+PYBIND11_MODULE(main, m) {
+    m.doc() = "DoodleJump AI by Yorick Charlery"; // optional module docstring
+
+    py::class_<AIGeneration>(m, "AIGeneration")
+        .def(py::init<int, std::vector<double>>())
+        .def(py::init<AIGeneration*>())
+        .def("sortPlayers", &AIGeneration::sortPlayers)
+        .def("mutatePlayers", &AIGeneration::mutatePlayers)
+        .def("__repr__", &AIGeneration::printPlayers)
+        .def("getPlayers", &AIGeneration::getPlayers);
+
+    py::class_<AIPlayer>(m, "AIPlayer")
+        .def(py::init<int, std::vector<double>>())
+        .def("makeMove", &AIPlayer::makeMove)
+        .def("getScore", &AIPlayer::getScore)
+        .def_readwrite("identifier", &AIPlayer::identifier)
+        .def_readwrite("totalScore", &AIPlayer::totalScore)
+        .def_readwrite("lastMove", &AIPlayer::lastMove)
+        .def_readwrite("weights", &AIPlayer::weights)
+        .def("getWeights", &AIPlayer::getWeights);
+
+    py::class_<State>(m, "State")
+        .def(py::init<>())
+        .def_readwrite("playerPos", &State::playerPos)
+        .def_readwrite("playerVel", &State::playerVel)
+        .def_readwrite("platforms", &State::platforms);
+
+    py::class_<Platform>(m, "Platform")
+        .def(py::init<>())
+        .def_readwrite("x", &Platform::x)
+        .def_readwrite("y", &Platform::y)
+        .def_readwrite("width", &Platform::width);
+}

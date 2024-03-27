@@ -22,6 +22,8 @@ class Player:
         self.velocity_at_zero = 900
         self.body.velocity = 0, 1000
         self.looking = "right"
+        self.collision_handler = self.space.add_collision_handler(1, 2)
+        self.collision_handler.begin = self.handle_collision
 
     def handle_input(self):
         keys = pygame.key.get_pressed()
@@ -45,9 +47,7 @@ class Player:
         if self.body.position.x < 0:
             self.body.position = 500, self.body.position.y
         elif self.body.position.x > 500:
-            self.body.position = 0, self.body.position.y
-        collision_handler = self.space.add_collision_handler(1, 2)
-        collision_handler.begin = self.handle_collision
+            self.body.position = 0, self.body.position.y  
         self.body.velocity = 0, self.body.velocity.y
         if (self.body.velocity.y > 0):
             self.shape.filter = pymunk.ShapeFilter(group=2)

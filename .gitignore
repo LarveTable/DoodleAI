@@ -1,2 +1,9 @@
 projectai
 __pycache__
+.vscode
+.idea
+cmake-build-debug
+CMakeLists.txt
+build
+.projectai
+projectai_old

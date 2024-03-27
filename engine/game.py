@@ -4,6 +4,8 @@ from physics import Simulation
 from platforms import BasePlatform
 from collections import deque
 import random
+from ai import AInstance
+import main
 
 class RunningGame:
     def __init__(self, window, main):
@@ -49,6 +51,13 @@ class RunningGame:
             self.score = 0
             self.score_string = self.font.render('Score : 0', True, pygame.Color("RED"))
 
+            self.ai = AInstance(self)
+
+            if self.main.nbTrials > 10:
+                self.ai.mutate()
+                self.ai.print_weights()
+                print("Mutated")
+
             print("The game has started.")
 
     def run(self):
@@ -68,8 +77,25 @@ class RunningGame:
             self.sim.step()
             self.fps_counter()
 
+            self.ai.update_state()
+            self.player.move(x=self.player.get_position()[0]+self.ai.make_move(), y=self.player.get_position()[1])
+
             if self.player.get_position()[1] < 0:
                 self.stop_game()
+
+    def get_state(self):
+        state = main.State()
+        state.playerPos = [self.player.get_position()[0], self.player.get_position()[1]]
+        state.playerVel = self.player.body.velocity[1]
+        plats = []
+        for platform in self.displayed_platforms:
+            p = main.Platform()
+            p.x = platform.p1[0]
+            p.y = platform.p1[1]
+            p.width = platform.p2[0] - platform.p1[0]
+            plats.append(p)
+        state.platforms = plats
+        return state
 
     def stop_game(self):
         if not self.is_running:
@@ -77,6 +103,7 @@ class RunningGame:
         else:
             self.is_running = False
             self.sim.kill()
+            del self.ai
             print("Game over.")
             self.main.restart()
     

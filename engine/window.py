@@ -29,8 +29,11 @@ class Window:
         # Draw the background image
         self.window.blit(self.scaled_image, (0, 0))
 
+        self.nbTrials = 0
+
     # Start the game
     def start_game(self):
+        print("Trial number: ", self.nbTrials)
         self.game = RunningGame(self.window, self)
         self.game.start_game()
 
@@ -59,6 +62,7 @@ class Window:
 
     def restart(self):
         del self.game
+        self.nbTrials += 1
         self.start_game()
 
 # Create the window

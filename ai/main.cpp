@@ -14,7 +14,8 @@ PYBIND11_MODULE(main, m) {
         .def("sortPlayers", &AIGeneration::sortPlayers)
         .def("mutatePlayers", &AIGeneration::mutatePlayers)
         .def("__repr__", &AIGeneration::printPlayers)
-        .def("getPlayers", &AIGeneration::getPlayers);
+        .def("getPlayers", &AIGeneration::getPlayers)
+        .def_readwrite("players", &AIGeneration::players);
 
     py::class_<AIPlayer>(m, "AIPlayer")
         .def(py::init<int, std::vector<double>>())

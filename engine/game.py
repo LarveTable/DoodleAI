@@ -51,13 +51,6 @@ class RunningGame:
             self.score = 0
             self.score_string = self.font.render('Score : 0', True, pygame.Color("RED"))
 
-            self.ai = AInstance(self)
-
-            if self.main.nbTrials > 10:
-                self.ai.mutate()
-                self.ai.print_weights()
-                print("Mutated")
-
             print("The game has started.")
 
     def run(self):
@@ -77,8 +70,8 @@ class RunningGame:
             self.sim.step()
             self.fps_counter()
 
-            self.ai.update_state()
-            self.player.move(x=self.player.get_position()[0]+self.ai.make_move(), y=self.player.get_position()[1])
+            self.main.ai.update_state()
+            self.player.move(x=self.player.get_position()[0]+self.main.ai.make_move(), y=self.player.get_position()[1])
 
             if self.player.get_position()[1] < 0:
                 self.stop_game()
@@ -103,7 +96,6 @@ class RunningGame:
         else:
             self.is_running = False
             self.sim.kill()
-            del self.ai
             print("Game over.")
             self.main.restart()
     

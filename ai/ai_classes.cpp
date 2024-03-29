@@ -4,21 +4,22 @@
 #include <cstdlib> // for rand() and srand()
 #include <ctime>   // for seeding the random number generator
 #include <iostream> // for std::cout
+#include <random> // for std::random_device and std::mt19937
 
 int AIPlayer::makeMove(State state){
     // Seed the random number generator
     srand(time(nullptr));
 
     // Generate a random integer between -4 and 4
-    int random_int = rand() % 9 - 4; // generates a random integer in the range [-4, 4]
+    int move_value = rand() % 9 - 4; // generates a random integer in the range [-4, 4]
 
     // Apply weights to bias the random number
-    random_int *= weights[0]; // adjust the random number based on weights
+    move_value *= weights[0]; // adjust the random number based on weights
 
-    lastMove = random_int; // store the last move
+    lastMove = move_value; // store the last move
 
     // Return the random integer value
-    return random_int;
+    return move_value;
 }
 
 int AIPlayer::getScore(){
@@ -44,16 +45,18 @@ void AIGeneration::sortPlayers(){
 
 void AIGeneration::mutatePlayers(){
     // Seed the random number generator
-    srand(time(nullptr));
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dis(-0.5f, 0.5f);
 
-    // Mutate the weights of the top 10% of players
     for(int i = 0; i < size; i++){
         for(int j = 0; j < 1; j++){
-            // Generate a random integer between -5 and 5
-            int random_int = rand() % 11 - 5; // generates a random integer in the range [-5, 5]
+
+            // Generate a random float between -5 and 5
+            float random_float = dis(gen);
 
             // Apply the mutation to the weights
-            players[i].weights[j] += random_int;
+            players[i].weights[j] += random_float;
         }
     }
 }

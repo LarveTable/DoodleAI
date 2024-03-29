@@ -1,9 +1,9 @@
 import pygame
 from game import RunningGame
+from ai import AInstance
 
 class Window:
     def __init__(self):
-        
         # Initialize Pygame TURTLE JUMP
         pygame.init()
 
@@ -40,6 +40,8 @@ class Window:
     def run(self):
 
         self.start_game()
+
+        self.ai = AInstance(self.game)
 
         # Game loop
         running = True

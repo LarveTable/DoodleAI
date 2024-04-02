@@ -10,6 +10,10 @@ int AIPlayer::makeMove(State state){
     // Seed the random number generator
     srand(time(nullptr));
 
+    int correction = rand() % 200;
+
+    srand(identifier + correction*correction); // seed the random number generator with the player's identifier
+
     // Generate a random integer between -4 and 4
     int move_value = rand() % 9 - 4; // generates a random integer in the range [-4, 4]
 
@@ -52,7 +56,7 @@ void AIGeneration::mutatePlayers(){
     for(int i = 0; i < size; i++){
         for(int j = 0; j < 1; j++){
 
-            // Generate a random float between -5 and 5
+            // Generate a random float between -0.5 and 0.5
             float random_float = dis(gen);
 
             // Apply the mutation to the weights

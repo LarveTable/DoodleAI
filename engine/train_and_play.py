@@ -1,6 +1,9 @@
 import pygame
 from game import RunningGame
 from ai import AInstance
+import main
+import threading
+import time
 
 class Window:
     def __init__(self):
@@ -29,44 +32,85 @@ class Window:
         # Draw the background image
         self.window.blit(self.scaled_image, (0, 0))
 
-        self.nbTrials = 0
+        self.player_count = 50
+
+        self.games_stopped = 0
+
+        self.results = {}
+
+        self.generation = 0
+
+        self.max_generation = 10
 
     # Start the game
-    def start_game(self):
-        print("Trial number: ", self.nbTrials)
-        self.game = RunningGame(self.window, self)
-        self.game.start_game()
+    def start_game(self, player, generation, barrier):
+        ai = AInstance(generation, player)
+        game = RunningGame(self.window, self, ai, self.player_count)
+        game.start_game()
+        self.update_game(game, barrier)
 
-    def run(self):
+    def update_game(self, game, barrier):
+        while game.is_running:
+            game.run()
+            barrier.wait()
+        del game
+        while self.running:
+            barrier.wait()
 
-        self.start_game()
-
-        self.ai = AInstance(self.game)
-
+    def refresh(self, barrier):
         # Game loop
-        running = True
-        while running:
+        self.running = True
+
+        while self.running:
+
             # Handle events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    self.running = False
 
             # Clear the window
             self.window.fill((0, 0, 0))
             self.window.blit(self.scaled_image, (0, 0))
 
-            self.game.run()
+            if (self.games_stopped == self.player_count):
+                self.running = False
+                print("All games have stopped.")
+                best_key = max(self.results.keys())
+                best_value = self.results[best_key]
+                print("Best player : " + str(int(best_value[0])) + " with a score of " + str(best_key) + " and weights : " + str(best_value[1]))
+                self.generation += 1
+
+            barrier.wait()
 
             pygame.display.update() # Always at the end
 
-        # Quit Pygame
-        pygame.quit()
-
-    def restart(self):
-        del self.game
-        self.nbTrials += 1
-        self.start_game()
+        if (self.generation > self.max_generation):
+            print("Training finished with a max score of : " + str(best_key) + " and weights : " + str(best_value[1]))
+            # Quit Pygame
+            pygame.quit()
+        else:
+            self.games_stopped = 0
+            self.results = {}
+            barrier = trainings(self, best_value[1])
+            self.refresh(barrier)
 
 # Create the window
 window = Window()
-window.run()
+
+def trainings(window, weights):
+    print("Generation "+str(window.generation)+", training with weights : " + str(weights))
+    threads = []
+    barrier = threading.Barrier(window.player_count+1)
+    generation = main.AIGeneration(window.player_count, weights)
+    generation.mutatePlayers()
+    for p in generation.players:
+        thread = threading.Thread(target=window.start_game, args=(p, generation, barrier))
+        threads.append(thread)
+
+    for t in threads:
+        t.start()
+    
+    return barrier
+
+barrier = trainings(window, [-1, 1.7, 2.6])
+window.refresh(barrier)

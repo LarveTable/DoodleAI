@@ -11,7 +11,7 @@ class Simulation:
 
     def step(self):
         self.clock.tick(self.fps)
-        self.space.step(1 / self.fps)
+        self.space.step(1 / self.fps) # Divide by an higher number to fasten the simulation
 
     def convert_coordinates(self, x, y):
         return x, self.window.get_height() - y

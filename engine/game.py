@@ -4,15 +4,17 @@ from physics import Simulation
 from platforms import BasePlatform
 from collections import deque
 import random
-from ai import AInstance
 import main
 
 class RunningGame:
-    def __init__(self, window, main):
+    def __init__(self, window, main, ai, player_count):
         self.is_running = False
         self.window = window
         self.main = main
+        self.ai = ai
+        self.player_count = player_count
 
+        self.platform_color = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
         self.velocity_at_zero = 900
 
         self.max_platforms = 20
@@ -51,30 +53,44 @@ class RunningGame:
             self.score = 0
             self.score_string = self.font.render('Score : 0', True, pygame.Color("RED"))
 
-            print("The game has started.")
+            #print("The game has started for player : "+str(self.ai.player.identifier)+".")
 
     def run(self):
         if self.is_running:
-            # Draw game elements here
-            self.player.draw()
-            self.player.handle_input()
 
-            # Draw the platforms
-            for platform in self.displayed_platforms:
-                platform.draw()
+            if self.player_count > 1:
+                self.player.draw()
 
-            # Draw the score
-            self.window.blit(self.score_string,(300,0))
+                # Update the simulation
+                self.sim.step()
 
-            # Update the simulation
-            self.sim.step()
-            self.fps_counter()
+                self.ai.update_state(self)
+                self.player.move(x=self.player.get_position()[0]+self.ai.make_move(), y=self.player.get_position()[1])
 
-            self.main.ai.update_state()
-            self.player.move(x=self.player.get_position()[0]+self.main.ai.make_move(), y=self.player.get_position()[1])
+                if self.player.get_position()[1] < 0:
+                    self.stop_game()
 
-            if self.player.get_position()[1] < 0:
-                self.stop_game()
+            else:
+                # Draw game elements here
+                self.player.draw()
+                self.player.handle_input()
+
+                # Draw the score
+                self.window.blit(self.score_string,(300,0))
+
+                # Draw the platforms
+                for platform in self.displayed_platforms:
+                    platform.draw()
+
+                # Update the simulation
+                self.sim.step()
+                self.fps_counter()
+
+                self.ai.update_state(self)
+                self.player.move(x=self.player.get_position()[0]+self.ai.make_move(), y=self.player.get_position()[1])
+
+                if self.player.get_position()[1] < 0:
+                    self.stop_game()
 
     def get_state(self):
         state = main.State()
@@ -96,8 +112,9 @@ class RunningGame:
         else:
             self.is_running = False
             self.sim.kill()
-            print("Game over.")
-            self.main.restart()
+            self.main.games_stopped += 1
+            self.main.results[self.score] = [self.ai.player.identifier, self.ai.player.weights]
+            del self.ai
     
     def fps_counter(self):
         fps = str(int(self.clock.get_fps()))
@@ -126,7 +143,7 @@ class RunningGame:
             if len(self.displayed_platforms) == 0:
                 random_x = random.randint(10, 330)
                 random_y = random.randint(20, 100)
-                first = BasePlatform((random_x, random_y), (random_x+80, random_y), self.sim, self.window)
+                first = BasePlatform((random_x, random_y), (random_x+80, random_y), self.sim, self.window, self.platform_color)
                 self.displayed_platforms.append(first)
 
             # Get the highest platform
@@ -137,5 +154,5 @@ class RunningGame:
             random_x = random.randint(10, 330)
 
             # Generate a new platform
-            new_platform = BasePlatform((random_x, random_y), (random_x+80, random_y), self.sim, self.window)
+            new_platform = BasePlatform((random_x, random_y), (random_x+80, random_y), self.sim, self.window, self.platform_color)
             self.displayed_platforms.append(new_platform)

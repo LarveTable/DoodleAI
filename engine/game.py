@@ -87,7 +87,15 @@ class RunningGame:
                 self.fps_counter()
 
                 self.ai.update_state(self)
-                self.player.move(x=self.player.get_position()[0]+self.ai.make_move(), y=self.player.get_position()[1])
+                move = self.ai.make_move()
+                nearest = self.ai.get_nearest_platform()
+                move_string = self.font.render("move : "+str(move), True, pygame.Color("GREEN"))
+                for platform in self.displayed_platforms: #check if nearest if valid
+                    if platform.body.id == nearest:
+                        #change color of the platform
+                        platform.color = (255, 0, 0)
+                self.window.blit(move_string,(200,400))
+                self.player.move(x=self.player.get_position()[0]+move, y=self.player.get_position()[1])
 
                 if self.player.get_position()[1] < 0:
                     self.stop_game()
@@ -99,11 +107,31 @@ class RunningGame:
         plats = []
         for platform in self.displayed_platforms:
             p = main.Platform()
-            p.x = platform.p1[0]
-            p.y = platform.p1[1]
             p.width = platform.p2[0] - platform.p1[0]
+            #x and y should be the center of the platform
+            p.x = platform.p1[0] + p.width/2
+            p.y = platform.p1[1]
+            p.id = platform.body.id
             plats.append(p)
+        state.score = int(self.score)
         state.platforms = plats
+
+        if self.player.last_touched is None:
+            last_touched = main.Platform()
+            last_touched.x = 0
+            last_touched.y = 0
+            last_touched.width = 0
+            last_touched.id = 0
+        else:
+            last_touched = main.Platform()
+            last_touched.x = self.player.last_touched.a[0]
+            last_touched.y = self.player.last_touched.a[1]
+            last_touched.width = self.player.last_touched.b[0] - self.player.last_touched.a[0]
+            last_touched.id = self.player.last_touched.body.id
+
+        state.lastTouchedPlatform = last_touched
+        state.touchedPlatforms = len(self.player.platforms_touched)
+
         return state
 
     def stop_game(self):
@@ -113,7 +141,7 @@ class RunningGame:
             self.is_running = False
             self.sim.kill()
             self.main.games_stopped += 1
-            self.main.results[self.score] = [self.ai.player.identifier, self.ai.player.weights]
+            self.main.results[self.ai.player.state.score] = [self.ai.player.identifier, self.ai.player.weights]
             del self.ai
     
     def fps_counter(self):

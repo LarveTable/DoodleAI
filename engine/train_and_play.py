@@ -32,7 +32,7 @@ class Window:
         # Draw the background image
         self.window.blit(self.scaled_image, (0, 0))
 
-        self.player_count = 50
+        self.player_count = 1
 
         self.games_stopped = 0
 
@@ -41,6 +41,8 @@ class Window:
         self.generation = 0
 
         self.max_generation = 10
+
+        self.force_exit = False
 
     # Start the game
     def start_game(self, player, generation, barrier):
@@ -67,6 +69,9 @@ class Window:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
+                    self.force_exit = True
+                    barrier.abort()
+                    break
 
             # Clear the window
             self.window.fill((0, 0, 0))
@@ -84,11 +89,11 @@ class Window:
 
             pygame.display.update() # Always at the end
 
-        if (self.generation > self.max_generation):
+        if (self.generation > self.max_generation and not self.force_exit):
             print("Training finished with a max score of : " + str(best_key) + " and weights : " + str(best_value[1]))
             # Quit Pygame
             pygame.quit()
-        else:
+        elif (not self.force_exit):
             self.games_stopped = 0
             self.results = {}
             barrier = trainings(self, best_value[1])

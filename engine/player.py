@@ -24,6 +24,8 @@ class Player:
         self.looking = "right"
         self.collision_handler = self.space.add_collision_handler(1, 2)
         self.collision_handler.begin = self.handle_collision
+        self.platforms_touched = []
+        self.last_touched = None
 
     def handle_input(self):
         keys = pygame.key.get_pressed()
@@ -68,6 +70,10 @@ class Player:
                 y = self.required_velocity(state)
                 theoritical_height = (self.velocity_at_zero ** 2) / (2 * abs(self.space.gravity[1])) + state
                 self.body.velocity = 0, y
+                if arbiter.shapes[1] not in self.platforms_touched:
+                    self.platforms_touched.append(arbiter.shapes[1])
+                if self.last_touched != arbiter.shapes[1]:
+                    self.last_touched = arbiter.shapes[1]
                 self.game.update_displayed_platforms(y, theoritical_height)
                 return True
         return False

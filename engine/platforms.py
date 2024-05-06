@@ -9,6 +9,7 @@ class Platform:
         self.p2 = p2
         self.thickeness = 5
         self.color = color
+        self.color_debug = self.color
         self.window = window
         self.space = sim.space
         self.body = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
@@ -21,6 +22,7 @@ class Platform:
         start = self.sim.convert_coordinates(self.p1[0], self.p1[1])
         end = self.sim.convert_coordinates(self.p2[0], self.p2[1])
         pygame.draw.line(self.window, self.color, start, end, 2*self.thickeness) # 10 because pygame expends the thickness of the line to both sides
+        self.color = self.color_debug #only for debug
 
     def move(self, y):
         self.p1 = (self.p1[0], y)

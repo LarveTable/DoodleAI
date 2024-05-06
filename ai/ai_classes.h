@@ -7,15 +7,19 @@
 class AIPlayer {
     public: // make attributes private later
         AIPlayer(int identifier, const std::vector<double>& weights) 
-        : identifier(identifier), totalScore(0), lastMove(0), weights(weights) {};
+        : identifier(identifier), lastMove(0), weights(weights) {};
         AIPlayer(){}; // Default constructor
         int identifier;
-        int totalScore;
         int lastMove;
         std::vector<double> weights;
-        int makeMove(State state);
-        int getScore();
+        void evaluatePlayer();
+        int makeMove();
+        State state;
+        int fitness;
         std::vector<double> getWeights();
+        Platform computeNearestPlatform();
+        double computeDistanceToPlatform(const Platform& platform);
+        long nearestId;
 };
 
 class AIGeneration {

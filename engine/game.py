@@ -95,7 +95,7 @@ class RunningGame:
                         #change color of the platform
                         platform.color = (255, 0, 0)
                 self.window.blit(move_string,(200,400))
-                #self.player.move(x=self.player.get_position()[0]+move, y=self.player.get_position()[1])
+                self.player.move(x=self.player.get_position()[0]+move, y=self.player.get_position()[1])
 
                 if self.player.get_position()[1] < 0:
                     self.stop_game()

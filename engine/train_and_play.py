@@ -117,5 +117,5 @@ def trainings(window, weights):
     
     return barrier
 
-barrier = trainings(window, [-1, 1.7, 2.6])
+barrier = trainings(window, [-1, 100, 2.6])
 window.refresh(barrier)

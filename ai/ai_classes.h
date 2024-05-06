@@ -20,6 +20,9 @@ class AIPlayer {
         Platform computeNearestPlatform();
         double computeDistanceToPlatform(const Platform& platform);
         long nearestId;
+        double computeNinjaDistanceToPlatform(const Platform& platform, double distance);
+        double closeCall(const Platform& platform);
+
 };
 
 class AIGeneration {

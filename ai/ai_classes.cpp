@@ -11,6 +11,9 @@
 //compute next movement score and try variations and keep the best for example the distance between the player and the platform decreases
 
 int AIPlayer::makeMove(){
+
+    int capped = 10;
+
     // Seed the random number generator
     srand(time(nullptr));
 
@@ -28,8 +31,8 @@ int AIPlayer::makeMove(){
     Platform nearest = computeNearestPlatform();
     double distance = computeDistanceToPlatform(nearest);
 
-    // Apply weights to bias the random number
-    move_value += (distance/20)*weights[0]; // adjust the random number based on weights
+    //heuristic one
+    move_value += (distance/20)*weights[0]; 
 
     if(distance < 0 && move_value > 0){
         move_value *= -1;
@@ -38,16 +41,44 @@ int AIPlayer::makeMove(){
         move_value *= -1;
     }
 
+    double ninja = computeNinjaDistanceToPlatform(nearest, distance);
+
+    //heuristic two
+    move_value += ninja*weights[1];
+
+    double close = closeCall(nearest);
+
+    //heuristic three
+    move_value += close*weights[2];
+
+    if (std::abs(move_value) > capped){
+        if (move_value > 0){
+            move_value = capped;
+        }
+        else{
+            move_value = -capped;
+        }
+    }
+
     lastMove = move_value; // store the last move
 
-    // Return the random integer value
     return move_value;
+}
+
+double AIPlayer::closeCall(const Platform& platform){
+    double close = 0;
+    if (platform.y == -1 && state.playerPos[1] > state.lastTouchedPlatform.y){
+        close = computeDistanceToPlatform(state.lastTouchedPlatform);
+        return close/5;
+    }
+    return 0;
 }
 
 Platform AIPlayer::computeNearestPlatform(){
     Platform nearestPlatform;
-    nearestPlatform.y = -1; // initialize the y value of the nearest platform to -1
-    nearestPlatform.x = 0; // initialize the x value of the nearest platform to -1
+    nearestPlatform.y = -1; // generic
+    nearestPlatform.x = 0; // generic
+    nearestPlatform.id = -1; // generic
     double minDistance = std::numeric_limits<double>::max(); // initialize the minimum distance to a large value
 
     // Iterate over all platforms in the game state
@@ -76,6 +107,23 @@ double AIPlayer::computeDistanceToPlatform(const Platform& platform){
     // Calculate the distance between the player and the platform in the x axis
     double distance = platform.x - state.playerPos[0];
     return distance;
+}
+
+double AIPlayer::computeNinjaDistanceToPlatform(const Platform& platform, double distance){
+    double ninja = 0;
+    if (distance < 0) {
+        ninja = 500 - state.playerPos[0] + platform.x;
+    }
+    else{
+        ninja = -(500 - platform.x + state.playerPos[0]);
+    }
+
+    if (std::abs(ninja) < distance){
+        return ninja;
+    }
+    else{
+        return 0;
+    }
 }
 
 void AIPlayer::evaluatePlayer(){
@@ -115,7 +163,7 @@ void AIGeneration::mutatePlayers(){
     std::uniform_real_distribution<float> dis(-0.5f, 0.5f);
 
     for(int i = 0; i < size; i++){
-        for(int j = 0; j < 1; j++){
+        for(int j = 0; j < players[i].weights.size(); j++){
 
             // Generate a random float between -0.5 and 0.5
             float random_float = dis(gen);

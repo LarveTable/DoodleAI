@@ -94,6 +94,7 @@ class RunningGame:
                     if platform.body.id == nearest:
                         #change color of the platform
                         platform.color = (255, 0, 0)
+                        pygame.draw.line(self.window, "GREEN", (platform.p1[0] + (platform.p2[0] - platform.p1[0])/2, self.window.get_height() - platform.p1[1]), (self.player.get_position()[0], self.window.get_height() - self.player.get_position()[1]), 3)
                 self.window.blit(move_string,(200,400))
                 self.player.move(x=self.player.get_position()[0]+move, y=self.player.get_position()[1])
 

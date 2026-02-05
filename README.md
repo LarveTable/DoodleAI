@@ -6,9 +6,8 @@ The AI is implemented using **C++** for efficiency and the game runs on **Python
 
 Demo training:
 
-https://github.com/user-attachments/assets/298ac0b3-05da-4fe5-b0cb-c6f2d790f8da
+https://github.com/user-attachments/assets/5a847b28-2f69-4977-b8b3-8d3fcfff1fcc
 
 Demo playing:
 
-https://github.com/user-attachments/assets/a472f65b-c9a5-4399-a2ad-06e20e7a1eb8
-
+https://github.com/user-attachments/assets/bd40325c-8d5c-43c2-afd4-f935f377e0e8
